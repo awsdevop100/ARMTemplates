@@ -14,7 +14,7 @@ Param(
 #Connect-AzureRmAccount
  
 cls
-cd C:\bupa\ARMRepo\
+#cd C:\bupa\ARMRepo\
 ls
 
 #mkdir C:\bupa\ARMRepo\Before
