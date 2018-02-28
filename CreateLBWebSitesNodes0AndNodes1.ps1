@@ -1,42 +1,41 @@
-﻿<#
- .SYNOPSIS
-    Deploys a template to Azure
-
- .DESCRIPTION
-    Deploys an Azure Resource Manager template
-
- .PARAMETER subscriptionId
-    The subscription id where the template will be deployed.
-
- .PARAMETER resourceGroupName
-    The resource group where the template will be deployed. Can be the name of an existing or a new resource group.
-
- .PARAMETER resourceGroupLocation
-    Optional, a resource group location. If specified, will try to create a new resource group in this location. If not specified, assumes resource group is existing.
-
- .PARAMETER deploymentName
-    The deployment name.
-
- .PARAMETER templateFilePath
-    Optional, path to the template file. Defaults to template.json.
-
- .PARAMETER parametersFilePath
-    Optional, path to the parameters file. Defaults to parameters.json. If file is not found, will prompt for parameter values based on template.
-#>
-
+﻿
 param(
 
 
  [string]
  $resourceGroupLocation = "Northeurope",
 
- 
  [string]
- $templateFilePath = "C:\bupa\ARMRepo\deploytemplate.json",
+ $resourceGroupName = "FrontEnd-RG",
 
  [string]
- $parametersFilePath = "C:\bupa\ARMRepo\DeploymentParemeters.json"
+ $vnetwork = "bupavnet01",
+
+ [string]
+ $Subnet = "frontend1", 
+
+ [string]
+ $NSGGroup = "FrontEnd-NSG", 
+
+ [string]
+ $VMNode0 = "bupafenode0", 
+
+  [string]
+ $VMNode1 = "bupafenode1", 
+
+
+  [string]
+ $templateFilePath = ".\deploytemplate.json",
+
+ [string]
+ $parametersFilePath = ".\DeploymentParemeters.json"
+
+
+
 )
+
+
+# $resourceGroupName = "bupa-lb-webapp02-RG",
 
 <#
 .SYNOPSIS
@@ -56,33 +55,20 @@ Function RegisterRP {
 # Execution begins here
 #******************************************************************************
 $ErrorActionPreference = "Stop"
- 
-cd C:\bupa\ARMRepo\
+
+#cd C:\BUPAWEBAPP\ARMTemplates-master
 
 ls
 
-#cd "C:\bupa\ARMRepo\deploytemplate.json"
 
+#$subscriptionId = Connect-AzureRmAccount
 
-$subscriptionId = 'xxxxxxxxxxxxxxxxxxxxx'  # Cloud
-$subscriptionName = 'Visual Studio Premium with MSDN'   # Cloud
-
-$resourceGroupName = 'bupa-lb-webapp02-RG'
 write-host -foreground green $resourceGroupName
 
 
-#Login-AzureRmAccount
- Write-Host "Selecting subscription '$subscriptionId'";
- Get-AzureRmContext
- Set-AzureRmContext -SubscriptionId $subscriptionId  
- # select subscription
- Write-Host "Selecting subscription '$subscriptionId'";
- Select-AzureRmSubscription -SubscriptionName  $SubscriptionName
- Select-AzureRmSubscription -SubscriptionID $subscriptionId;
- Get-AzureRmSubscription -SubscriptionName  $SubscriptionName
 
-# select subscription
-Write-Host -ForegroundColor Green  "Selecting subscription '$subscriptionId'";
+# selected subscription
+$subscriptionId
 
 # Register RPs
 $resourceProviders = @("microsoft.insights","microsoft.web");
@@ -120,14 +106,14 @@ if(Test-Path $parametersFilePath) {
     New-AzureRmResourceGroupDeployment -ResourceGroupName $resourceGroupName -TemplateFile $templateFilePath -Verbose -Debug;
     }
 
-Remove-AzureRmVMExtension -ResourceGroupName "bupa-lb-webapp02-RG" -Name "IIS" -VMName "bupaNode0"
-Remove-AzureRmVMExtension -ResourceGroupName "bupa-lb-webapp02-RG" -Name "IIS" -VMName "bupaNode1"
+Remove-AzureRmVMExtension -ResourceGroupName $resourceGroupName -Name "IIS" -VMName  $VMNode0
+Remove-AzureRmVMExtension -ResourceGroupName $resourceGroupName -Name "IIS" -VMName  $VMNode1
 
 
 # Install IIS
-Set-AzureRmVMExtension -ResourceGroupName "bupa-lb-webapp02-RG" `
+Set-AzureRmVMExtension -ResourceGroupName "$resourceGroupName" `
     -ExtensionName "IIS" `
-    -VMName "bupaNode0" `
+    -VMName $VMNode0 `
     -Location "NorthEurope" `
     -Publisher Microsoft.Compute `
     -ExtensionType CustomScriptExtension `
@@ -136,69 +122,67 @@ Set-AzureRmVMExtension -ResourceGroupName "bupa-lb-webapp02-RG" `
 
 
 # Install IIS
-Set-AzureRmVMExtension -ResourceGroupName "bupa-lb-webapp02-RG" `
+Set-AzureRmVMExtension -ResourceGroupName "$resourceGroupName" `
     -ExtensionName "IIS" `
-    -VMName "bupaNode1" `
+    -VMName $VMNode1 `
     -Location "NorthEurope" `
     -Publisher Microsoft.Compute `
     -ExtensionType CustomScriptExtension `
     -TypeHandlerVersion 1.8 `
     -SettingString '{"commandToExecute":"powershell Install-WindowsFeature Web-Server, Web-Mgmt-Service, Web-Asp-Net45,NET-Framework-Features; powershell Add-Content -Path \"C:\\inetpub\\wwwroot\\Default.htm\" -Value $($env:computername)"}'
+
+
+
+
+$rule0 = New-AzureRmNetworkSecurityRuleConfig -Name Allow-8172 -Description "Allow 8172" `
+    -Access Allow -Protocol Tcp -Direction Inbound -Priority 102 -SourceAddressPrefix `
+    Internet -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange *
+
+
+$rule1 = New-AzureRmNetworkSecurityRuleConfig -Name Allow-8080 -Description "Allow 8080" `
+    -Access Allow -Protocol Tcp -Direction Inbound -Priority 103 -SourceAddressPrefix `
+    Internet -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange *
+
+$rule2 = New-AzureRmNetworkSecurityRuleConfig -Name Allow-443 -Description "Allow 443" `
+    -Access Allow -Protocol Tcp -Direction Inbound -Priority 104 -SourceAddressPrefix `
+    Internet -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange *
+
+
+#Create New NSG
+$nsg = new-AzureRmNetworkSecurityGroup -ResourceGroupName $resourceGroupName -Location northeurope -Name $NSGGroup -SecurityRules $rule0, $rule1,$rule2
+
+#Associate NSG to Subnet
+$vnet = Get-AzureRmVirtualNetwork -ResourceGroupName $resourceGroupName -Name $vnetwork
+Set-AzureRmVirtualNetworkSubnetConfig -VirtualNetwork $vnet -Name $Subnet -AddressPrefix 10.0.0.0/16 -NetworkSecurityGroup $nsg
 
 
 #---
 #Associate NSG to a bupanic0
-
-$nsg = Get-AzureRmNetworkSecurityGroup -ResourceGroupName "bupa-lb-webapp02-RG" -Name "FrontEnd-NSG"
+#$nsg = Get-AzureRmNetworkSecurityGroup -ResourceGroupName "$resourceGroupName" -Name "FrontEnd-NSG"
 
 #Retrieve bupanic0 and store in variable:
-
 #nic0
-$nic = Get-AzureRmNetworkInterface -ResourceGroupName "bupa-lb-webapp02-RG" -Name "bupanic0"
+#$nic = Get-AzureRmNetworkInterface -ResourceGroupName "$resourceGroupName" -Name "bupanic0"
 
 #Set NetworkSecurityGroup property of NIC variable to NSG 
-
-$nic.NetworkSecurityGroup = $nsg
+#$nic.NetworkSecurityGroup = $nsg
 
 #save  changes made to the NIC
-
-Set-AzureRmNetworkInterface -NetworkInterface $nic
+#Set-AzureRmNetworkInterface -NetworkInterface $nic
 
 #---
 #Associate NSG to a bupanic1
-
-$nsg = Get-AzureRmNetworkSecurityGroup -ResourceGroupName "bupa-lb-webapp02-RG" -Name "FrontEnd-NSG"
+#$nsg = Get-AzureRmNetworkSecurityGroup -ResourceGroupName "$resourceGroupName" -Name "FrontEnd-NSG"
 
 #Retrieve NIC and store it in a variable:
-
 #nic1
-$nic = Get-AzureRmNetworkInterface -ResourceGroupName "bupa-lb-webapp02-RG" -Name "bupanic1"
+#$nic = Get-AzureRmNetworkInterface -ResourceGroupName "$resourceGroupName" -Name "bupanic1"
 
 #Set NetworkSecurityGroup property of NIC variable to NSG 
-$nic.NetworkSecurityGroup = $nsg
+#$nic.NetworkSecurityGroup = $nsg
+
 
 #save  changes made to the NIC
-Set-AzureRmNetworkInterface -NetworkInterface $nic
-
-$rule0 = New-AzureRmNetworkSecurityRuleConfig -Name Port_Any -Description "Port_Any" `
-    -Access Allow -Protocol Tcp -Direction Inbound -Priority 100 -SourceAddressPrefix `
-    Internet -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange *
-
-$rule1 = New-AzureRmNetworkSecurityRuleConfig -Name rdp-rule -Description "Allow RDP 3389" `
-    -Access Allow -Protocol Tcp -Direction Inbound -Priority 101 -SourceAddressPrefix `
-    Internet -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 3389
-
-$rule2 = New-AzureRmNetworkSecurityRuleConfig -Name web-rule -Description "Allow 80" `
-    -Access Allow -Protocol Tcp -Direction Inbound -Priority 102 -SourceAddressPrefix `
-    Internet -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 80
-
-$rule2 = New-AzureRmNetworkSecurityRuleConfig -Name web-rule -Description "Allow 80" `
-    -Access Allow -Protocol Tcp -Direction Inbound -Priority 102 -SourceAddressPrefix `
-    Internet -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange 80
-
-#Create New NSG
-$nsg = new-AzureRmNetworkSecurityGroup -ResourceGroupName bupa-lb-webapp02-RG -Location northeurope -Name "FrontEnd-NSG" -SecurityRules $rule0, $rule1,$rule2
+#Set-AzureRmNetworkInterface -NetworkInterface $nic
 
 
-#Update NSG
-Update-AzureRMCustomNetworkSecurityGroup -CSVPath "c:\temp\Frontend-NSG.csv" -ResourceGroupName "bupa-lb-webapp02-RG" -NetworkSecurityGroupName "FrontEnd-NSG"
