@@ -1,5 +1,7 @@
 # ARMTemplates
 
+# Authored by : Gary Gordon
+
 This repo allows you an easier way to create your Azure ARM Network Network using Azure ARM Templates and also allows you to maintain your Network Security Groups using a CSV file
 
 
