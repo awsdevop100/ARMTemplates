@@ -18,5 +18,5 @@ If there is a clash in priority numbers between a new/updated rule and a rule th
 
 This makes creating and maintaining **Network Security Group rules** easier.
 
-Enjoy
+
 
