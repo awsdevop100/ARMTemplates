@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "storageAccountName": {
-      "value": "bp-poc"
+      "value": "frontendstore"
     },
     "adminUsername": {
       "value": "Webadmin"
@@ -12,7 +12,7 @@
       "value": "Admin123456789"
     },
     "dnsNameforLBIP": {
-      "value": "vipbupa001"
+      "value": "bupafevip01"
     }
   }
 }

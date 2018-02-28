@@ -4,7 +4,7 @@
   "parameters": {
     "storageAccountName": {
       "type": "string",
-      "DefaultValue": "bupastore",
+      "DefaultValue": "frontendstore",
       "metadata": {
         "description": "Name of storage account"
       }
@@ -25,14 +25,14 @@
     },
     "dnsNameforLBIP": {
       "type": "string",
-      "defaultValue": "vipbupa001",
+      "defaultValue": "bupafevip01",
       "metadata": {
         "description": "DNS for Load Balancer IP"
       }
     },
     "vmNamePrefix": {
       "type": "string",
-      "defaultValue": "BupaNode",
+      "defaultValue": "BupafeNode",
       "metadata": {
         "description": "Prefix to use for VM names"
       }
@@ -60,28 +60,28 @@
     },
     "lbName": {
       "type": "string",
-      "defaultValue": "bupalb01",
+      "defaultValue": "bupafelb",
       "metadata": {
         "description": "Load Balancer name"
       }
     },
     "nicNamePrefix": {
       "type": "string",
-      "defaultValue": "bupanic",
+      "defaultValue": "bupafenic",
       "metadata": {
         "description": "Network Interface name prefix"
       }
     },
     "publicIPAddressName": {
       "type": "string",
-      "defaultValue": "Bupapipweb",
+      "defaultValue": "bupafepip01",
       "metadata": {
         "description": "Public IP Name"
       }
     },
     "vnetName": {
       "type": "string",
-      "defaultValue": "bupavnet",
+      "defaultValue": "bupavnet01",
       "metadata": {
         "description": "VNET name"
       }
@@ -96,9 +96,9 @@
   },
   "variables": {
     "storageAccountType": "Standard_LRS",
-    "availabilitySetName": "bupaAvSet",
+    "availabilitySetName": "bupafeAvSet",
     "addressPrefix": "10.0.0.0/16",
-    "subnetName": "Subnet-1",
+    "subnetName": "FrontEnd1",
     "subnetPrefix": "10.0.0.0/24",
     "publicIPAddressType": "Dynamic",
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('vnetName'))]",
