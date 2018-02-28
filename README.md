@@ -2,7 +2,7 @@
 
 **Authored by : Gary Gordon**
 
-This repo allows you an easier way to create your Azure ARM Network and VMs using **Azure ARM Templates** and also allows you to maintain your **Network Security Groups** using a CSV file.
+This repo allows you an easier way to create your **Azure ARM Network** and **VMs** using **Azure ARM Templates** and also allows you to maintain your **Network Security Groups** using a CSV file.
 
 # Updating Network Security Groups
 To update the **FrontEnd-NSG** go to the **After\FrontEnd-NSG.csv** file and make your updates there. 
