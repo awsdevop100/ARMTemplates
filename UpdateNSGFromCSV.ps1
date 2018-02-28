@@ -1,4 +1,4 @@
-﻿# Create an inbound network security group rule for port 3389
+﻿# Create inbound network security group rules from Frontend-NSG.csv
 
 Param(
     [string]$nsgName = "FrontEnd-NSG1",
