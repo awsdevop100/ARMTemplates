@@ -9,5 +9,5 @@ As soon as the file is updated, Visual Studio Team Services Online will trigger 
 The script UpdateNSGFromCSV.ps1 will update the Network security group rules for the NSG FrontEnd-NSG
 When the Script updates the rules in the Azure Network Security Group it processes them based on the priority value defined in the CSV.
 If there is a clash in priority numbers between a new/updated rule and a rule that already exists in the Azure Network Security Group rule, the rule that already exist will be overwritten. 
-This makes creating and maintaining Network Security Group rule easier
+This makes creating and maintaining Network Security Group rules easier
 
