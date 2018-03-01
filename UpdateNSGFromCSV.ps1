@@ -1,26 +1,19 @@
 ﻿# Create inbound network security group rules from Frontend-NSG.csv
 
 Param(
-    [string]$nsgName = "FrontEnd-NSG1",
-    [string]$resourceGroup = "bupa-lb-webapp02-RG",
+    [string]$nsgName = "FrontEnd-NSG",
+    [string]$resourceGroup = "Frontend-RG"
     [string]$location = "northeurope",
     [string]$tagName = "bupa-nsg",
     [string]$tagValue = "Bupa-FrontEnd-NSG" ,
     [string]$customCsv = ".\AFTER\FrontEnd-NSG.csv"
 )
  
-#Login-AzureRMAccount
-
 #Connect-AzureRmAccount
  
 cls
 #cd C:\bupa\ARMRepo\
 ls
-
-#mkdir C:\bupa\ARMRepo\Before
-#mkdir C:\bupa\ARMRepo\After
-
-
 
 $before = ".\BEFORE\FrontEnd-NSG.csv"
 $After =  ".\AFTER\FrontEnd-NSG.csv"
