@@ -118,8 +118,7 @@ Set-AzureRmVMExtension -ResourceGroupName "$resourceGroupName" `
     -Publisher Microsoft.Compute `
     -ExtensionType CustomScriptExtension `
     -TypeHandlerVersion 1.8 `
-    -SettingString '{"commandToExecute":"powershell Install-WindowsFeature Web-Server, Web-Mgmt-Service, Web-Asp-Net45,NET-Framework-Features; powershell Add-Content -Path \"C:\\inetpub\\wwwroot\\Default.htm\" -Value $($env:computername)"}'
-
+    -SettingString '{"commandToExecute":"powershell Install-WindowsFeature Web-Server, Web-Mgmt-Service, Web-Mgmt-Console, Web-Mgmt-Compat, Web-Asp-Net45, Web-App-Dev, NET-Framework-Features; powershell Add-Content -Path \"C:\\inetpub\\wwwroot\\Node.html\" -Value $($env:computername)"}'
 
 # Install IIS
 Set-AzureRmVMExtension -ResourceGroupName "$resourceGroupName" `
@@ -129,8 +128,7 @@ Set-AzureRmVMExtension -ResourceGroupName "$resourceGroupName" `
     -Publisher Microsoft.Compute `
     -ExtensionType CustomScriptExtension `
     -TypeHandlerVersion 1.8 `
-    -SettingString '{"commandToExecute":"powershell Install-WindowsFeature Web-Server, Web-Mgmt-Service, Web-Asp-Net45,NET-Framework-Features; powershell Add-Content -Path \"C:\\inetpub\\wwwroot\\Default.htm\" -Value $($env:computername)"}'
-
+    -SettingString '{"commandToExecute":"powershell Install-WindowsFeature Web-Server, Web-Mgmt-Service, Web-Mgmt-Console, Web-Mgmt-Compat, Web-Asp-Net45, Web-App-Dev, NET-Framework-Features; powershell Add-Content -Path \"C:\\inetpub\\wwwroot\\Node.html\" -Value $($env:computername)"}'
 
 $rule0 = New-AzureRmNetworkSecurityRuleConfig -Name Allow-8172 -Description "Allow 8172" `
     -Access Allow -Protocol Tcp -Direction Inbound -Priority 102 -SourceAddressPrefix `
