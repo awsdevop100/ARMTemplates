@@ -147,13 +147,25 @@ $rule2 = New-AzureRmNetworkSecurityRuleConfig -Name Allow-443 -Description "Allo
     -Access Allow -Protocol Tcp -Direction Inbound -Priority 104 -SourceAddressPrefix `
     Internet -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange *
 
-
+#---
 #Create New NSG
 $nsg = new-AzureRmNetworkSecurityGroup -ResourceGroupName $resourceGroupName -Location northeurope -Name $NSGGroup -SecurityRules $rule0, $rule1,$rule2
 
 #Associate NSG to Subnet
-$vnet = Get-AzureRmVirtualNetwork -ResourceGroupName $resourceGroupName -Name $vnetwork
-Set-AzureRmVirtualNetworkSubnetConfig -VirtualNetwork $vnet -Name $Subnet -AddressPrefix 10.0.0.0/16 -NetworkSecurityGroup $nsg
+#Get NSG 
+$nsg = Get-AzureRmNetworkSecurityGroup -ResourceGroupName $resourceGroupName  -Name $NSGGroup
+#Select VNET
+$vnetName = (Get-AzureRmVirtualNetwork -ResourceGroupName $resourceGroupName).Name 
+$vnet = Get-AzureRmVirtualNetwork -ResourceGroupName $resourceGroupName -Name $vnetName
+ 
+# Select Subnet 
+$subnetName = $vnet.Subnets.Name 
+$subnet = $vnet.Subnets | Where-Object Name -eq $subnetName
+ 
+# Associate NSG to subnet
+Set-AzureRmVirtualNetworkSubnetConfig -VirtualNetwork $vnet -Name $subnetName -AddressPrefix $subnet.AddressPrefix -NetworkSecurityGroup $nsg | Set-AzureRmVirtualNetwork
+
+#---
 
 
 #---
