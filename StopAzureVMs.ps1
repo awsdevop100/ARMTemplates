@@ -1,24 +1,11 @@
-﻿$subscriptionId = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxx'  # Cloud
-$subscriptionName = 'Visual Studio Premium with MSDN'   # Cloud
-#$TenantID = '0448d8b2-0625-41f7-9062-953db800ee20'
-
-$resourceGroupName = 'bupa-lb-webapp02-RG'
+$resourceGroupName = "Frontend-RG"
+$NSGGroup = "FrontEnd-NSG"
+$vnetwork = "bupavnet01"
+$Subnet = "frontend1"
+$VMNode0 = "BupafeNode0"
+$VMNode1 = "BupafeNode1"
+#Connect-AzureRmAccount
 write-host -foreground green $resourceGroupName
-
-
-#Login-AzureRmAccount
- Write-Host "Selecting subscription '$subscriptionId'";
- Get-AzureRmContext
- Set-AzureRmContext -SubscriptionId $subscriptionId  
- # select subscription
- Write-Host "Selecting subscription '$subscriptionId'";
- Select-AzureRmSubscription -SubscriptionName  $SubscriptionName
- Select-AzureRmSubscription -SubscriptionID $subscriptionId;
- Get-AzureRmSubscription -SubscriptionName  $SubscriptionName
-
-# select subscription
-Write-Host -ForegroundColor Green  "Selecting subscription '$subscriptionId'";
-
 
 
 #Stop VMs
@@ -28,7 +15,7 @@ $powerstateMask = ‘PowerState/*’
 $powerstateStopped = ‘PowerState/stopped’
 $powerstateDealloc = ‘PowerState/deallocated’
 
-$servers = ('BupaNode0', 'BupaNode1', 'BupaNode2', 'BupaNode3', 'BupaNode4')
+$servers = ('BupafeNode0', 'BupafeNode1')
 foreach ($server in $servers) 
   {
 $VM = (Get-AzureRmVM -Name $server -ResourceGroupName $resourceGroupName -Status | Stop-AzureRmVM -force ) 
