@@ -132,8 +132,6 @@ Set-AzureRmVMExtension -ResourceGroupName "$resourceGroupName" `
     -SettingString '{"commandToExecute":"powershell Install-WindowsFeature Web-Server, Web-Mgmt-Service, Web-Asp-Net45,NET-Framework-Features; powershell Add-Content -Path \"C:\\inetpub\\wwwroot\\Default.htm\" -Value $($env:computername)"}'
 
 
-
-
 $rule0 = New-AzureRmNetworkSecurityRuleConfig -Name Allow-8172 -Description "Allow 8172" `
     -Access Allow -Protocol Tcp -Direction Inbound -Priority 102 -SourceAddressPrefix `
     Internet -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange *
@@ -147,11 +145,17 @@ $rule2 = New-AzureRmNetworkSecurityRuleConfig -Name Allow-443 -Description "Allo
     -Access Allow -Protocol Tcp -Direction Inbound -Priority 104 -SourceAddressPrefix `
     Internet -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange *
 
+$rule3 = New-AzureRmNetworkSecurityRuleConfig -Name Allow-80 -Description "Allow 80" `
+    -Access Allow -Protocol Tcp -Direction Inbound -Priority 105 -SourceAddressPrefix `
+    Internet -SourcePortRange * -DestinationAddressPrefix * -DestinationPortRange *
+
+
+
 #---
 #Create New NSG
-$nsg = new-AzureRmNetworkSecurityGroup -ResourceGroupName $resourceGroupName -Location northeurope -Name $NSGGroup -SecurityRules $rule0, $rule1,$rule2
+$nsg = new-AzureRmNetworkSecurityGroup -ResourceGroupName $resourceGroupName -Location northeurope -Name $NSGGroup -SecurityRules $rule0,  $rule1,  $rule2,  $rule3
 
-#Associate NSG to Subnet
+
 #Get NSG 
 $nsg = Get-AzureRmNetworkSecurityGroup -ResourceGroupName $resourceGroupName  -Name $NSGGroup
 #Select VNET
