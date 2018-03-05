@@ -24,10 +24,11 @@ write-host -ForegroundColor Green "Binaries Directory" $env:BUILD_BINARIESDIRECT
 
 $date = $(get-date -f yyyy-MM-dd-HH-mm)
 
+copy-item $env:BUILD_SOURCESDIRECTORY\*.* $env:BUILD_STAGINGDIRECTORY
 
 $Before = "$buildsourceDirectory\ARMTemplates-master\BeforeFrontEnd-NSG.csv"
 Test-Path $Before
-Write-host -ForegroundColor Green "Before File:|"  $Before
+Write-host -ForegroundColor Green "Before File:"  $Before
 
 
 $customCsv = "$buildsourceDirectory\ARMTemplates-master\AfterFrontEnd-NSG.csv"
@@ -35,25 +36,48 @@ Test-Path $customCsv
 Write-host -ForegroundColor Green  "After File:" $customCsv
 
 
-#BackupBeforeUpdate  - Export NSG
-#Get-AzureRmNetworkSecurityGroup -Name FrontEnd-NSG -ResourceGroupName FrontEnd-RG | Get-AzureRmNetworkSecurityRuleConfig | Select * | Export-Csv -NoTypeInformation -Path $Before
+write-host "Source Directory: "-ForegroundColor Green  $env:BUILD_SOURCESDIRECTORY
 
-#Copy-Item -Path ".\Backup\FrontEnd-NSG.csv" -Destination ".\Backup\FrontEnd-NSG-$date.csv"
+write-host "Staging Directory: "-ForegroundColor Green  $env:BUILD_STAGINGDIRECTORY
 
+write-host "Default Working Directory: "-ForegroundColor Green  $env:SYSTEM_DEFAULTWORKINGDIRECTORY
+$env:SYSTEM_DEFAULTWORKINGDIRECTORY
 ls
 
+$env:BUILD_STAGINGDIRECTORY
+ls
+
+write-host "customCsv: "-ForegroundColor Green  $customCsv
+
+write-host "customRules: "-ForegroundColor Green  $customRules
+
+write-host "Network Security Group: "-ForegroundColor Green  $nsgName
+
+write-host "Resource Group: "-ForegroundColor Green  $resourceGroup
+
+Get-AzureRmNetworkSecurityGroup -Name $nsgName -ResourceGroupName $resourceGroup 
 
 
 Compare-Object -ReferenceObject $before -DifferenceObject  $customCsv
 if (diff $before $customCsv) {
-   write-host 'not equal, updating NSG'
+   write-host 'The csv files are not equal, updating NSG' $nsgName
    #Update NSG
+   
+$customCsv = "$buildsourceDirectory\ARMTemplates-master\AfterFrontEnd-NSG.csv"
+
+
 #rules array
 $rulesArray = @()
  
 
 #add custom rules
 Write-Verbose 'Importing custom CSV'
+$customCsv = "$buildsourceDirectory\ARMTemplates-master\AfterFrontEnd-NSG.csv"
+write-host "Source Directory: "-ForegroundColor Green  $env:BUILD_SOURCESDIRECTORY
+
+write-host "Staging Directory: "-ForegroundColor Green  $env:BUILD_STAGINGDIRECTORY
+
+write-host "Default Working Directory: "-ForegroundColor Green  $env:SYSTEM_DEFAULTWORKINGDIRECTORY
 $customRules = Import-Csv $customCsv
  
 foreach ($customRule in $customRules) {
@@ -72,12 +96,17 @@ foreach ($customRule in $customRules) {
     $rulesArray += $customNsgRule
 }
 
+$getAzureRmNetworkSecurityGroup = get-AzureRmNetworkSecurityGroup -Name $nsgName -ResourceGroupName $resourceGroup
  
+$getAzureRmNetworkSecurityGroup
+
 #create NSG
-Write-Verbose 'creating nsg'
+Write-Verbose 'creating nsg' $nsgName
 New-AzureRmNetworkSecurityGroup -Name $nsgName -ResourceGroupName $resourceGroup `
     -Location $location `
     -Tag @{Name=$tagName;Value=$tagValue} `
     -SecurityRules $rulesArray `
     -Force
 }
+
+

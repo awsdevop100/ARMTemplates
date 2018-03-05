@@ -7,7 +7,7 @@ $VMNode0 = "BupafeNode0"
 $VMNode1 = "BupafeNode1"
 
 #Export NSG
-Get-AzureRmNetworkSecurityGroup -Name webdeploy-NSG -ResourceGroupName $resourceGroupName | Get-AzureRmNetworkSecurityRuleConfig | Select * | Export-Csv -NoTypeInformation -Path .\FrontEnd-NSG.csv
+Get-AzureRmNetworkSecurityGroup -Name $NSGGroup -ResourceGroupName $resourceGroupName | Get-AzureRmNetworkSecurityRuleConfig | Select * | Export-Csv -NoTypeInformation -Path .\FrontEnd-NSG.csv
 
 
 #Update NSG

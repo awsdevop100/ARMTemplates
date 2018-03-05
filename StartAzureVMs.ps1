@@ -1,4 +1,4 @@
-$resourceGroupName = "Frontend-RG"
+﻿$resourceGroupName = "Frontend-RG"
 $NSGGroup = "FrontEnd-NSG"
 $vnetwork = "bupavnet01"
 $Subnet = "frontend1"
